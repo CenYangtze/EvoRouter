@@ -8,7 +8,7 @@ EvoRouter brings cost-efficient multi-agent routing to a shared evaluation workf
 
 ## Installation
 
-Use Python 3.11 and run the following commands:
+Use Python 3.11 and CUDA 12.8, then run the following commands:
 
 ```bash
 git clone https://github.com/CenYangtze/EvoRouter.git
@@ -74,6 +74,34 @@ python -m evorouter download --sources
 Prepare BBH logical deduction and LiveCodeBench with the [official download commands](docs/resources.md#ood-data). The OOD evaluation contains 200 BBH tasks and 175 LiveCodeBench tasks.
 
 Use `--asset-root /path/to/assets` with download, preparation, and evaluation commands to choose another resource directory. `EVOROUTER_ASSET_ROOT` sets the default location. The [resource guide](docs/resources.md) describes the files and directory layout.
+
+## Training
+
+Install the training dependencies:
+
+```bash
+pip install -r requirements-training.txt
+```
+
+Use a Coordinator SFT checkpoint and its `sft_manifest.json`. Start RL with the BudgetBench training data:
+
+```bash
+torchrun --standalone --nproc_per_node=1 -m evorouter.training rl \
+  --model outputs/sft/best \
+  --sft-source outputs/sft/best/sft_manifest.json \
+  --teacher-model Qwen/Qwen3-32B-AWQ \
+  --data-dir assets/data/budgetbench \
+  --output-dir outputs/training
+```
+
+The configured API endpoint must also serve `deepseek-v4-pro-thinking` for Insight updates. Replace the model and data paths with your local paths as needed. Add `--resume` to the same command to continue from the latest checkpoint. The completed model is saved to `outputs/training/final` and can be passed to evaluation with `--model-path`.
+
+SFT data collection and SFT training have separate entrypoints:
+
+```bash
+python -m evorouter.training collect --help
+python -m evorouter.training sft --help
+```
 
 ## Run EvoRouter
 

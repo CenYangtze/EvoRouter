@@ -1,0 +1,4 @@
+-r requirements.txt
+deepspeed==0.18.7
+datasets==3.6.0
+autoawq==0.2.9
