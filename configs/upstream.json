@@ -1,0 +1,65 @@
+{
+  "AgentRouter": {
+    "files": {
+      "agentrouter_train/__init__.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/agentrouter_train/__init__.py",
+      "agentrouter_train/io_utils.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/agentrouter_train/io_utils.py",
+      "agentrouter_train/llm.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/agentrouter_train/llm.py",
+      "agentrouter_train/model.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/agentrouter_train/model.py",
+      "agentrouter_train/run_config.yaml": "https://anonymous.4open.science/api/repo/AgentRouter/file/agentrouter_train/run_config.yaml",
+      "agentrouter_train/text_utils.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/agentrouter_train/text_utils.py",
+      "graph_build/__init__.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/graph_build/__init__.py",
+      "graph_build/agents.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/graph_build/agents.py",
+      "graph_build/builders.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/graph_build/builders.py",
+      "graph_build/dataloaders.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/graph_build/dataloaders.py",
+      "graph_build/embedders.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/graph_build/embedders.py",
+      "graph_build/process.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/graph_build/process.py",
+      "graph_build/pyg_utils.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/graph_build/pyg_utils.py",
+      "graph_build/utils.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/graph_build/utils.py",
+      "prompts/2wiki.json": "https://anonymous.4open.science/api/repo/AgentRouter/file/prompts/2wiki.json",
+      "prompts/hotpotqa.json": "https://anonymous.4open.science/api/repo/AgentRouter/file/prompts/hotpotqa.json",
+      "prompts/newsqa.json": "https://anonymous.4open.science/api/repo/AgentRouter/file/prompts/newsqa.json",
+      "prompts/roles.json": "https://anonymous.4open.science/api/repo/AgentRouter/file/prompts/roles.json",
+      "prompts/triviaqa.json": "https://anonymous.4open.science/api/repo/AgentRouter/file/prompts/triviaqa.json",
+      "readme.md": "https://anonymous.4open.science/api/repo/AgentRouter/file/readme.md",
+      "requirements.txt": "https://anonymous.4open.science/api/repo/AgentRouter/file/requirements.txt",
+      "scripts/AgentTrainer.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/scripts/AgentTrainer.py",
+      "scripts/build_graph_all.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/scripts/build_graph_all.py",
+      "scripts/enrich_question_type.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/scripts/enrich_question_type.py",
+      "scripts/enrich_question_type_llm.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/scripts/enrich_question_type_llm.py",
+      "scripts/reembed_json_to_pt.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/scripts/reembed_json_to_pt.py",
+      "scripts/train_router.py": "https://anonymous.4open.science/api/repo/AgentRouter/file/scripts/train_router.py"
+    }
+  },
+  "DAAO": {
+    "url": "https://github.com/AutoAgents-ai/DAAO.git",
+    "revision": "5e260bb9e0f9af1b196c0ef6611db7b168326b9b"
+  },
+  "GraphRouter": {
+    "url": "https://github.com/ulab-uiuc/GraphRouter.git",
+    "revision": "0edfb8758d45acd93c8029354867ffb49bb8a97f"
+  },
+  "LiveCodeBench": {
+    "url": "https://github.com/LiveCodeBench/LiveCodeBench.git",
+    "revision": "28fef95ea8c9f7a547c8329f2cd3d32b92c1fa24"
+  },
+  "MasRouter": {
+    "url": "https://github.com/yanweiyue/masrouter.git",
+    "revision": "e005f7696fe0c0412563f6cd67f4cd3712fa2822"
+  },
+  "RouteLLM": {
+    "url": "https://github.com/lm-sys/RouteLLM.git",
+    "revision": "0b64fdafe049e596a3f5657c219329f24af24198"
+  },
+  "Router-R1": {
+    "url": "https://github.com/ulab-uiuc/Router-R1.git",
+    "revision": "801a240e37701577907c32de27a548af4e6c4430"
+  },
+  "RouterDC": {
+    "url": "https://github.com/shuhao02/RouterDC.git",
+    "revision": "168c026d7a6cd7029cb856a57d935bedfb746e7a"
+  },
+  "xRouter": {
+    "url": "https://github.com/SalesforceAIResearch/xRouter.git",
+    "revision": "df2f4bd29ac473f20a1ca984efee2bb2a9098219"
+  }
+}

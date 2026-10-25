@@ -1,0 +1,10 @@
+EvoRouter
+
+This distribution includes Apache-2.0 licensed code derived from MasRouter
+(https://github.com/yanweiyue/MasRouter). The applicable license is in LICENSE.
+
+The BudgetBench grading module in third_party/masrouter-budgetbench retains
+its Apache-2.0 license in that directory.
+
+Baseline integrations load the original implementations from assets/upstream.
+Those source distributions retain their respective licenses.

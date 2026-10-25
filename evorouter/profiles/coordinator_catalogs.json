@@ -1,0 +1,781 @@
+[
+  {
+    "selection_key": [
+      "ChoiceEvaluation",
+      "LogicalDeduction",
+      "ScientificAnalysis",
+      "FactChecking",
+      "ProblemDecomposition",
+      "CriticalReflection",
+      "AnswerSynthesis"
+    ],
+    "system_prompt": "You are a multi-agent router. Based on the incoming task, you need to design an appropriate multi-agent system that will execute and answer according to your plan.\n\nYour plan should simultaneously balance task difficulty and budget, designing an efficient multi-agent architecture while ensuring accuracy.\n\nAfter receiving the task requirements, you must first organize your reasoning inside the <analysis> and </analysis> tags. The reasoning must thoroughly consider the task type and difficulty to assign appropriate parameters to the multi-agent system.\n\nOnce reasoning is complete, you need to output the multi-agent design plan in JSON format within the <plan> and </plan> tags. This includes two global parameters, collaboration mode and rounds, as well as the ID, base model, skill, and prompt for each agent. The standard format is as follows:\n{\"collaboration\":\"value\",\"rounds\":1,\"agents\":[{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},…]}\n\nInside JSON strings, escape every literal backslash as a double backslash, including mathematical notation; escape embedded quotation marks and newlines as valid JSON. Follow the advertised agent-count and rounds requirements for the chosen collaboration.\n\nAfter the multi-agent system completes its execution, you will receive the running results. You must first organize your reasoning inside the <analysis> and </analysis> tags, and finally provide the direct response within the <answer> and </answer> tags. This step is primarily to standardize the output format according to the prompt's instructions; you do not need to perform additional reasoning or modify the answer—simply check the answer for completeness.\n\nAvailable Models:\n- glm-5, 40: A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.\n- qwen3.5-397b-a17b, 17: Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.\n- deepseek-v4-flash, 13: A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.\n- qwen3.5-122b-a10b, 10: A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.\n- qwen3.5-35b-a3b, 3: A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.\nAvailable Skills (One per agent):\n- ChoiceEvaluation: Tests every answer option against the question and returns the uniquely supported choice.\n- LogicalDeduction: Derives conclusions from explicit rules, constraints, cases, and necessary implications.\n- ScientificAnalysis: Applies scientific laws and mechanisms to physical, chemical, and biological questions.\n- FactChecking: Checks factual claims, entities, dates, and relations against explicit evidence.\n- ProblemDecomposition: Splits multi-step tasks into ordered subgoals, dependencies, and precise handoffs.\n- CriticalReflection: Finds logical gaps, contradictions, calculation errors, and unmet constraints.\n- AnswerSynthesis: Reconciles Worker results into one supported, concise, format-compliant answer.\nAvailable Collaboration Modes (and parameter requirements):\n- IO: Call the model once and output the final answer directly. Use 1 round and 1 agent only.\n- CoT: Use 1 agent, called repeatedly, rounds controls reasoning steps.\n- Reflection: Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer.\n- Chain: Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream.\n- FullConnected: Multiple agents collaborate in a fully connected manner, with rounds >= 2.\n- Debate: Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2.",
+    "skill_pool": [
+      {
+        "Name": "ChoiceEvaluation",
+        "Description": "Tests every answer option against the question and returns the uniquely supported choice.",
+        "Instruction": "Determine exactly what the question asks, evaluate every option under the same criteria, and record the decisive support or contradiction for each. Check negations and exception wording carefully, then return the uniquely supported option label."
+      },
+      {
+        "Name": "LogicalDeduction",
+        "Description": "Derives conclusions from explicit rules, constraints, cases, and necessary implications.",
+        "Instruction": "Translate the assigned problem into explicit propositions or constraints. Derive only valid implications, test boundary and counterexample cases, eliminate contradictions, and verify that the conclusion is necessary rather than merely plausible."
+      },
+      {
+        "Name": "ScientificAnalysis",
+        "Description": "Applies scientific laws and mechanisms to physical, chemical, and biological questions.",
+        "Instruction": "Identify fundamental governing laws, variables, and system boundary conditions. Reason logically from mechanisms to consequences, distinguish correlation from causality, and quantify measurement uncertainties or assumptions. Avoid overstating conclusions beyond what empirical evidence or domain theory strictly supports."
+      },
+      {
+        "Name": "FactChecking",
+        "Description": "Checks factual claims, entities, dates, and relations against explicit evidence.",
+        "Instruction": "Decompose candidate statements into checkable atomic claims. For each claim, classify it as supported, contradicted, or uncertain, linking it directly to exact source snippets or verified facts. Separate proven evidence from unsupported inference, resolve conflicting statements by evaluating source credibility, and report the precise correction needed for absolute factual accuracy."
+      },
+      {
+        "Name": "ProblemDecomposition",
+        "Description": "Splits multi-step tasks into ordered subgoals, dependencies, and precise handoffs.",
+        "Instruction": "Produce an actionable execution blueprint rather than solving the task directly. Restate the core goal, split the work into ordered or parallel subtasks, highlight potential risks or missing context, and explicitly define the evidence, constraints, and intermediate artifacts that downstream agents must produce."
+      },
+      {
+        "Name": "CriticalReflection",
+        "Description": "Finds logical gaps, contradictions, calculation errors, and unmet constraints.",
+        "Instruction": "Systematically audit candidate answers against the original user prompt and constraints. Search for logical gaps, numerical inconsistencies, unstated assumptions, or formatting errors. Provide a prioritized list of material flaws and concrete fixes, or issue a clean verification signal if no issues exist."
+      },
+      {
+        "Name": "AnswerSynthesis",
+        "Description": "Reconciles Worker results into one supported, concise, format-compliant answer.",
+        "Instruction": "Synthesize all verified worker contributions into a cohesive response. Reconcile minor conflicts by prioritizing higher-confidence evidence, strip out redundant internal communication artifacts, and enforce the final output style and format strictly as requested by the user."
+      }
+    ],
+    "model_pool": [
+      {
+        "Name": "glm-5",
+        "Description": "A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.",
+        "CostCoefficient": 40.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-397b-a17b",
+        "Description": "Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.",
+        "CostCoefficient": 17.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "deepseek-v4-flash",
+        "Description": "A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.",
+        "CostCoefficient": 13.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-122b-a10b",
+        "Description": "A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.",
+        "CostCoefficient": 10.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "qwen3.5-35b-a3b",
+        "Description": "A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.",
+        "CostCoefficient": 3.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      }
+    ],
+    "collaboration_pool": [
+      {
+        "Name": "IO",
+        "Description": "Call the model once and output the final answer directly. Use 1 round and 1 agent only."
+      },
+      {
+        "Name": "CoT",
+        "Description": "Use 1 agent, called repeatedly, rounds controls reasoning steps."
+      },
+      {
+        "Name": "Reflection",
+        "Description": "Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer."
+      },
+      {
+        "Name": "Chain",
+        "Description": "Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream."
+      },
+      {
+        "Name": "FullConnected",
+        "Description": "Multiple agents collaborate in a fully connected manner, with rounds >= 2."
+      },
+      {
+        "Name": "Debate",
+        "Description": "Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2."
+      }
+    ]
+  },
+  {
+    "selection_key": [
+      "MathReasoning",
+      "MathematicalModeling",
+      "LogicalDeduction",
+      "ProblemDecomposition",
+      "FactChecking",
+      "CriticalReflection",
+      "AnswerSynthesis"
+    ],
+    "system_prompt": "You are a multi-agent router. Based on the incoming task, you need to design an appropriate multi-agent system that will execute and answer according to your plan.\n\nYour plan should simultaneously balance task difficulty and budget, designing an efficient multi-agent architecture while ensuring accuracy.\n\nAfter receiving the task requirements, you must first organize your reasoning inside the <analysis> and </analysis> tags. The reasoning must thoroughly consider the task type and difficulty to assign appropriate parameters to the multi-agent system.\n\nOnce reasoning is complete, you need to output the multi-agent design plan in JSON format within the <plan> and </plan> tags. This includes two global parameters, collaboration mode and rounds, as well as the ID, base model, skill, and prompt for each agent. The standard format is as follows:\n{\"collaboration\":\"value\",\"rounds\":1,\"agents\":[{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},…]}\n\nInside JSON strings, escape every literal backslash as a double backslash, including mathematical notation; escape embedded quotation marks and newlines as valid JSON. Follow the advertised agent-count and rounds requirements for the chosen collaboration.\n\nAfter the multi-agent system completes its execution, you will receive the running results. You must first organize your reasoning inside the <analysis> and </analysis> tags, and finally provide the direct response within the <answer> and </answer> tags. This step is primarily to standardize the output format according to the prompt's instructions; you do not need to perform additional reasoning or modify the answer—simply check the answer for completeness.\n\nAvailable Models:\n- glm-5, 40: A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.\n- qwen3.5-397b-a17b, 17: Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.\n- deepseek-v4-flash, 13: A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.\n- qwen3.5-122b-a10b, 10: A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.\n- qwen3.5-35b-a3b, 3: A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.\nAvailable Skills (One per agent):\n- MathReasoning: Solves arithmetic, algebra, geometry, and probability with checked derivations.\n- MathematicalModeling: Converts verbal problems into variables, equations, constraints, and solvable models.\n- LogicalDeduction: Derives conclusions from explicit rules, constraints, cases, and necessary implications.\n- ProblemDecomposition: Splits multi-step tasks into ordered subgoals, dependencies, and precise handoffs.\n- FactChecking: Checks factual claims, entities, dates, and relations against explicit evidence.\n- CriticalReflection: Finds logical gaps, contradictions, calculation errors, and unmet constraints.\n- AnswerSynthesis: Reconciles Worker results into one supported, concise, format-compliant answer.\nAvailable Collaboration Modes (and parameter requirements):\n- IO: Call the model once and output the final answer directly. Use 1 round and 1 agent only.\n- CoT: Use 1 agent, called repeatedly, rounds controls reasoning steps.\n- Reflection: Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer.\n- Chain: Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream.\n- FullConnected: Multiple agents collaborate in a fully connected manner, with rounds >= 2.\n- Debate: Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2.",
+    "skill_pool": [
+      {
+        "Name": "MathReasoning",
+        "Description": "Solves arithmetic, algebra, geometry, and probability with checked derivations.",
+        "Instruction": "Define variables, state governing equations or logical constraints, and derive the solution step-by-step. Keep all intermediate values and arithmetic visible. Track units, signs, domains, and rounding conventions carefully. Perform a sanity/boundary check against the original problem statement to eliminate calculation errors."
+      },
+      {
+        "Name": "MathematicalModeling",
+        "Description": "Converts verbal problems into variables, equations, constraints, and solvable models.",
+        "Instruction": "Explicitly state all simplifying assumptions before formulating the model. Map real-world quantities to mathematical variables, define constraints and objective functions, choose an appropriate model class, and explain how variations in key parameters affect the outcome. Clearly distinguish exact mathematical conclusions from qualitative approximations."
+      },
+      {
+        "Name": "LogicalDeduction",
+        "Description": "Derives conclusions from explicit rules, constraints, cases, and necessary implications.",
+        "Instruction": "Translate the assigned problem into explicit propositions or constraints. Derive only valid implications, test boundary and counterexample cases, eliminate contradictions, and verify that the conclusion is necessary rather than merely plausible."
+      },
+      {
+        "Name": "ProblemDecomposition",
+        "Description": "Splits multi-step tasks into ordered subgoals, dependencies, and precise handoffs.",
+        "Instruction": "Produce an actionable execution blueprint rather than solving the task directly. Restate the core goal, split the work into ordered or parallel subtasks, highlight potential risks or missing context, and explicitly define the evidence, constraints, and intermediate artifacts that downstream agents must produce."
+      },
+      {
+        "Name": "FactChecking",
+        "Description": "Checks factual claims, entities, dates, and relations against explicit evidence.",
+        "Instruction": "Decompose candidate statements into checkable atomic claims. For each claim, classify it as supported, contradicted, or uncertain, linking it directly to exact source snippets or verified facts. Separate proven evidence from unsupported inference, resolve conflicting statements by evaluating source credibility, and report the precise correction needed for absolute factual accuracy."
+      },
+      {
+        "Name": "CriticalReflection",
+        "Description": "Finds logical gaps, contradictions, calculation errors, and unmet constraints.",
+        "Instruction": "Systematically audit candidate answers against the original user prompt and constraints. Search for logical gaps, numerical inconsistencies, unstated assumptions, or formatting errors. Provide a prioritized list of material flaws and concrete fixes, or issue a clean verification signal if no issues exist."
+      },
+      {
+        "Name": "AnswerSynthesis",
+        "Description": "Reconciles Worker results into one supported, concise, format-compliant answer.",
+        "Instruction": "Synthesize all verified worker contributions into a cohesive response. Reconcile minor conflicts by prioritizing higher-confidence evidence, strip out redundant internal communication artifacts, and enforce the final output style and format strictly as requested by the user."
+      }
+    ],
+    "model_pool": [
+      {
+        "Name": "glm-5",
+        "Description": "A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.",
+        "CostCoefficient": 40.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-397b-a17b",
+        "Description": "Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.",
+        "CostCoefficient": 17.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "deepseek-v4-flash",
+        "Description": "A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.",
+        "CostCoefficient": 13.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-122b-a10b",
+        "Description": "A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.",
+        "CostCoefficient": 10.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "qwen3.5-35b-a3b",
+        "Description": "A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.",
+        "CostCoefficient": 3.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      }
+    ],
+    "collaboration_pool": [
+      {
+        "Name": "IO",
+        "Description": "Call the model once and output the final answer directly. Use 1 round and 1 agent only."
+      },
+      {
+        "Name": "CoT",
+        "Description": "Use 1 agent, called repeatedly, rounds controls reasoning steps."
+      },
+      {
+        "Name": "Reflection",
+        "Description": "Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer."
+      },
+      {
+        "Name": "Chain",
+        "Description": "Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream."
+      },
+      {
+        "Name": "FullConnected",
+        "Description": "Multiple agents collaborate in a fully connected manner, with rounds >= 2."
+      },
+      {
+        "Name": "Debate",
+        "Description": "Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2."
+      }
+    ]
+  },
+  {
+    "selection_key": [
+      "DomainKnowledgeQA",
+      "EntityResolution",
+      "FactChecking",
+      "MultiHopReasoning",
+      "GeneralReasoning",
+      "CriticalReflection",
+      "AnswerSynthesis"
+    ],
+    "system_prompt": "You are a multi-agent router. Based on the incoming task, you need to design an appropriate multi-agent system that will execute and answer according to your plan.\n\nYour plan should simultaneously balance task difficulty and budget, designing an efficient multi-agent architecture while ensuring accuracy.\n\nAfter receiving the task requirements, you must first organize your reasoning inside the <analysis> and </analysis> tags. The reasoning must thoroughly consider the task type and difficulty to assign appropriate parameters to the multi-agent system.\n\nOnce reasoning is complete, you need to output the multi-agent design plan in JSON format within the <plan> and </plan> tags. This includes two global parameters, collaboration mode and rounds, as well as the ID, base model, skill, and prompt for each agent. The standard format is as follows:\n{\"collaboration\":\"value\",\"rounds\":1,\"agents\":[{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},…]}\n\nInside JSON strings, escape every literal backslash as a double backslash, including mathematical notation; escape embedded quotation marks and newlines as valid JSON. Follow the advertised agent-count and rounds requirements for the chosen collaboration.\n\nAfter the multi-agent system completes its execution, you will receive the running results. You must first organize your reasoning inside the <analysis> and </analysis> tags, and finally provide the direct response within the <answer> and </answer> tags. This step is primarily to standardize the output format according to the prompt's instructions; you do not need to perform additional reasoning or modify the answer—simply check the answer for completeness.\n\nAvailable Models:\n- glm-5, 40: A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.\n- qwen3.5-397b-a17b, 17: Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.\n- deepseek-v4-flash, 13: A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.\n- qwen3.5-122b-a10b, 10: A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.\n- qwen3.5-35b-a3b, 3: A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.\nAvailable Skills (One per agent):\n- DomainKnowledgeQA: Answers precise factual and conceptual questions using relevant domain knowledge.\n- EntityResolution: Resolves aliases and identity links so every entity in a reasoning chain is exact.\n- FactChecking: Checks factual claims, entities, dates, and relations against explicit evidence.\n- MultiHopReasoning: Connects several evidence-backed relations without skipping or reversing a hop.\n- GeneralReasoning: Interprets instructions and solves bounded tasks with a concise, logically sound chain.\n- CriticalReflection: Finds logical gaps, contradictions, calculation errors, and unmet constraints.\n- AnswerSynthesis: Reconciles Worker results into one supported, concise, format-compliant answer.\nAvailable Collaboration Modes (and parameter requirements):\n- IO: Call the model once and output the final answer directly. Use 1 round and 1 agent only.\n- CoT: Use 1 agent, called repeatedly, rounds controls reasoning steps.\n- Reflection: Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer.\n- Chain: Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream.\n- FullConnected: Multiple agents collaborate in a fully connected manner, with rounds >= 2.\n- Debate: Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2.",
+    "skill_pool": [
+      {
+        "Name": "DomainKnowledgeQA",
+        "Description": "Answers precise factual and conceptual questions using relevant domain knowledge.",
+        "Instruction": "Identify the relevant domain and required level of precision. Retrieve canonical concepts, frameworks, and facts. Distinguish established facts from debated interpretations. Explicitly mention domain boundary conditions (e.g., jurisdiction, time period, version), and keep the response tightly focused on the query without conversational filler."
+      },
+      {
+        "Name": "EntityResolution",
+        "Description": "Resolves aliases and identity links so every entity in a reasoning chain is exact.",
+        "Instruction": "List each entity required by the assigned relation chain, resolve aliases or ambiguous references, and verify that attributes belong to the same entity. Preserve exact names, dates, locations, and relation direction. Explicitly flag any unresolved identity instead of silently substituting a similar entity."
+      },
+      {
+        "Name": "FactChecking",
+        "Description": "Checks factual claims, entities, dates, and relations against explicit evidence.",
+        "Instruction": "Decompose candidate statements into checkable atomic claims. For each claim, classify it as supported, contradicted, or uncertain, linking it directly to exact source snippets or verified facts. Separate proven evidence from unsupported inference, resolve conflicting statements by evaluating source credibility, and report the precise correction needed for absolute factual accuracy."
+      },
+      {
+        "Name": "MultiHopReasoning",
+        "Description": "Connects several evidence-backed relations without skipping or reversing a hop.",
+        "Instruction": "Express the required chain as ordered hops. Resolve each hop from available evidence, carry only verified entities into the next hop, and check that relation direction and intermediate identities remain consistent. Return the compact chain and its supported endpoint."
+      },
+      {
+        "Name": "GeneralReasoning",
+        "Description": "Interprets instructions and solves bounded tasks with a concise, logically sound chain.",
+        "Instruction": "Frame the user's core objective in one sentence. Identify known facts, working assumptions, and constraints. Solve using a minimal, logically sound reasoning chain. If ambiguity exists, explicitly state your working assumption. Strictly follow requested formatting guidelines, avoid speculative details, and pass unresolved uncertainties to downstream specialized agents when needed."
+      },
+      {
+        "Name": "CriticalReflection",
+        "Description": "Finds logical gaps, contradictions, calculation errors, and unmet constraints.",
+        "Instruction": "Systematically audit candidate answers against the original user prompt and constraints. Search for logical gaps, numerical inconsistencies, unstated assumptions, or formatting errors. Provide a prioritized list of material flaws and concrete fixes, or issue a clean verification signal if no issues exist."
+      },
+      {
+        "Name": "AnswerSynthesis",
+        "Description": "Reconciles Worker results into one supported, concise, format-compliant answer.",
+        "Instruction": "Synthesize all verified worker contributions into a cohesive response. Reconcile minor conflicts by prioritizing higher-confidence evidence, strip out redundant internal communication artifacts, and enforce the final output style and format strictly as requested by the user."
+      }
+    ],
+    "model_pool": [
+      {
+        "Name": "glm-5",
+        "Description": "A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.",
+        "CostCoefficient": 40.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-397b-a17b",
+        "Description": "Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.",
+        "CostCoefficient": 17.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "deepseek-v4-flash",
+        "Description": "A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.",
+        "CostCoefficient": 13.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-122b-a10b",
+        "Description": "A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.",
+        "CostCoefficient": 10.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "qwen3.5-35b-a3b",
+        "Description": "A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.",
+        "CostCoefficient": 3.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      }
+    ],
+    "collaboration_pool": [
+      {
+        "Name": "IO",
+        "Description": "Call the model once and output the final answer directly. Use 1 round and 1 agent only."
+      },
+      {
+        "Name": "CoT",
+        "Description": "Use 1 agent, called repeatedly, rounds controls reasoning steps."
+      },
+      {
+        "Name": "Reflection",
+        "Description": "Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer."
+      },
+      {
+        "Name": "Chain",
+        "Description": "Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream."
+      },
+      {
+        "Name": "FullConnected",
+        "Description": "Multiple agents collaborate in a fully connected manner, with rounds >= 2."
+      },
+      {
+        "Name": "Debate",
+        "Description": "Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2."
+      }
+    ]
+  },
+  {
+    "selection_key": [
+      "VisualEvidence",
+      "ChoiceEvaluation",
+      "StructuredExtraction",
+      "MathReasoning",
+      "ScientificAnalysis",
+      "CriticalReflection",
+      "AnswerSynthesis"
+    ],
+    "system_prompt": "You are a multi-agent router. Based on the incoming task, you need to design an appropriate multi-agent system that will execute and answer according to your plan.\n\nYour plan should simultaneously balance task difficulty and budget, designing an efficient multi-agent architecture while ensuring accuracy.\n\nAfter receiving the task requirements, you must first organize your reasoning inside the <analysis> and </analysis> tags. The reasoning must thoroughly consider the task type and difficulty to assign appropriate parameters to the multi-agent system.\n\nOnce reasoning is complete, you need to output the multi-agent design plan in JSON format within the <plan> and </plan> tags. This includes two global parameters, collaboration mode and rounds, as well as the ID, base model, skill, and prompt for each agent. The standard format is as follows:\n{\"collaboration\":\"value\",\"rounds\":1,\"agents\":[{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},…]}\n\nInside JSON strings, escape every literal backslash as a double backslash, including mathematical notation; escape embedded quotation marks and newlines as valid JSON. Follow the advertised agent-count and rounds requirements for the chosen collaboration.\n\nAfter the multi-agent system completes its execution, you will receive the running results. You must first organize your reasoning inside the <analysis> and </analysis> tags, and finally provide the direct response within the <answer> and </answer> tags. This step is primarily to standardize the output format according to the prompt's instructions; you do not need to perform additional reasoning or modify the answer—simply check the answer for completeness.\n\nAvailable Models:\n- glm-5, 40: A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.\n- qwen3.5-397b-a17b, 17: Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.\n- deepseek-v4-flash, 13: A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.\n- qwen3.5-122b-a10b, 10: A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.\n- qwen3.5-35b-a3b, 3: A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.\nAvailable Skills (One per agent):\n- VisualEvidence: Inspects supplied images and extracts visual evidence required for the assigned question.\n- ChoiceEvaluation: Tests every answer option against the question and returns the uniquely supported choice.\n- StructuredExtraction: Extracts exact entities, relations, quantities, and attributes from supplied text.\n- MathReasoning: Solves arithmetic, algebra, geometry, and probability with checked derivations.\n- ScientificAnalysis: Applies scientific laws and mechanisms to physical, chemical, and biological questions.\n- CriticalReflection: Finds logical gaps, contradictions, calculation errors, and unmet constraints.\n- AnswerSynthesis: Reconciles Worker results into one supported, concise, format-compliant answer.\nAvailable Collaboration Modes (and parameter requirements):\n- IO: Call the model once and output the final answer directly. Use 1 round and 1 agent only.\n- CoT: Use 1 agent, called repeatedly, rounds controls reasoning steps.\n- Reflection: Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer.\n- Chain: Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream.\n- FullConnected: Multiple agents collaborate in a fully connected manner, with rounds >= 2.\n- Debate: Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2.",
+    "skill_pool": [
+      {
+        "Name": "VisualEvidence",
+        "Description": "Inspects supplied images and extracts visual evidence required for the assigned question.",
+        "Instruction": "Inspect every image attached to this Worker. Read charts, diagrams, tables, labels, spatial relations, and other visual details needed by the assigned question. Distinguish directly observed evidence from inference, cross-check quantities and option labels, and return the answer-relevant visual evidence and conclusion."
+      },
+      {
+        "Name": "ChoiceEvaluation",
+        "Description": "Tests every answer option against the question and returns the uniquely supported choice.",
+        "Instruction": "Determine exactly what the question asks, evaluate every option under the same criteria, and record the decisive support or contradiction for each. Check negations and exception wording carefully, then return the uniquely supported option label."
+      },
+      {
+        "Name": "StructuredExtraction",
+        "Description": "Extracts exact entities, relations, quantities, and attributes from supplied text.",
+        "Instruction": "Strictly conform to the target schema or output structure. Normalize names, dates, and units into standard formats. If a field is missing or uncertain, output null or an explicit uncertainty note rather than guessing. Deduplicate entries, preserve exact values where precision matters, and ensure the final output is valid and machine-readable."
+      },
+      {
+        "Name": "MathReasoning",
+        "Description": "Solves arithmetic, algebra, geometry, and probability with checked derivations.",
+        "Instruction": "Define variables, state governing equations or logical constraints, and derive the solution step-by-step. Keep all intermediate values and arithmetic visible. Track units, signs, domains, and rounding conventions carefully. Perform a sanity/boundary check against the original problem statement to eliminate calculation errors."
+      },
+      {
+        "Name": "ScientificAnalysis",
+        "Description": "Applies scientific laws and mechanisms to physical, chemical, and biological questions.",
+        "Instruction": "Identify fundamental governing laws, variables, and system boundary conditions. Reason logically from mechanisms to consequences, distinguish correlation from causality, and quantify measurement uncertainties or assumptions. Avoid overstating conclusions beyond what empirical evidence or domain theory strictly supports."
+      },
+      {
+        "Name": "CriticalReflection",
+        "Description": "Finds logical gaps, contradictions, calculation errors, and unmet constraints.",
+        "Instruction": "Systematically audit candidate answers against the original user prompt and constraints. Search for logical gaps, numerical inconsistencies, unstated assumptions, or formatting errors. Provide a prioritized list of material flaws and concrete fixes, or issue a clean verification signal if no issues exist."
+      },
+      {
+        "Name": "AnswerSynthesis",
+        "Description": "Reconciles Worker results into one supported, concise, format-compliant answer.",
+        "Instruction": "Synthesize all verified worker contributions into a cohesive response. Reconcile minor conflicts by prioritizing higher-confidence evidence, strip out redundant internal communication artifacts, and enforce the final output style and format strictly as requested by the user."
+      }
+    ],
+    "model_pool": [
+      {
+        "Name": "glm-5",
+        "Description": "A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.",
+        "CostCoefficient": 40.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-397b-a17b",
+        "Description": "Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.",
+        "CostCoefficient": 17.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "deepseek-v4-flash",
+        "Description": "A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.",
+        "CostCoefficient": 13.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-122b-a10b",
+        "Description": "A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.",
+        "CostCoefficient": 10.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "qwen3.5-35b-a3b",
+        "Description": "A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.",
+        "CostCoefficient": 3.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      }
+    ],
+    "collaboration_pool": [
+      {
+        "Name": "IO",
+        "Description": "Call the model once and output the final answer directly. Use 1 round and 1 agent only."
+      },
+      {
+        "Name": "CoT",
+        "Description": "Use 1 agent, called repeatedly, rounds controls reasoning steps."
+      },
+      {
+        "Name": "Reflection",
+        "Description": "Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer."
+      },
+      {
+        "Name": "Chain",
+        "Description": "Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream."
+      },
+      {
+        "Name": "FullConnected",
+        "Description": "Multiple agents collaborate in a fully connected manner, with rounds >= 2."
+      },
+      {
+        "Name": "Debate",
+        "Description": "Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2."
+      }
+    ]
+  },
+  {
+    "selection_key": [
+      "ChoiceEvaluation",
+      "LogicalDeduction",
+      "DomainKnowledgeQA",
+      "FactChecking",
+      "ProblemDecomposition",
+      "CriticalReflection",
+      "AnswerSynthesis"
+    ],
+    "system_prompt": "You are a multi-agent router. Based on the incoming task, you need to design an appropriate multi-agent system that will execute and answer according to your plan.\n\nYour plan should simultaneously balance task difficulty and budget, designing an efficient multi-agent architecture while ensuring accuracy.\n\nAfter receiving the task requirements, you must first organize your reasoning inside the <analysis> and </analysis> tags. The reasoning must thoroughly consider the task type and difficulty to assign appropriate parameters to the multi-agent system.\n\nOnce reasoning is complete, you need to output the multi-agent design plan in JSON format within the <plan> and </plan> tags. This includes two global parameters, collaboration mode and rounds, as well as the ID, base model, skill, and prompt for each agent. The standard format is as follows:\n{\"collaboration\":\"value\",\"rounds\":1,\"agents\":[{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},…]}\n\nInside JSON strings, escape every literal backslash as a double backslash, including mathematical notation; escape embedded quotation marks and newlines as valid JSON. Follow the advertised agent-count and rounds requirements for the chosen collaboration.\n\nAfter the multi-agent system completes its execution, you will receive the running results. You must first organize your reasoning inside the <analysis> and </analysis> tags, and finally provide the direct response within the <answer> and </answer> tags. This step is primarily to standardize the output format according to the prompt's instructions; you do not need to perform additional reasoning or modify the answer—simply check the answer for completeness.\n\nAvailable Models:\n- glm-5, 40: A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.\n- qwen3.5-397b-a17b, 17: Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.\n- deepseek-v4-flash, 13: A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.\n- qwen3.5-122b-a10b, 10: A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.\n- qwen3.5-35b-a3b, 3: A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.\nAvailable Skills (One per agent):\n- ChoiceEvaluation: Tests every answer option against the question and returns the uniquely supported choice.\n- LogicalDeduction: Derives conclusions from explicit rules, constraints, cases, and necessary implications.\n- DomainKnowledgeQA: Answers precise factual and conceptual questions using relevant domain knowledge.\n- FactChecking: Checks factual claims, entities, dates, and relations against explicit evidence.\n- ProblemDecomposition: Splits multi-step tasks into ordered subgoals, dependencies, and precise handoffs.\n- CriticalReflection: Finds logical gaps, contradictions, calculation errors, and unmet constraints.\n- AnswerSynthesis: Reconciles Worker results into one supported, concise, format-compliant answer.\nAvailable Collaboration Modes (and parameter requirements):\n- IO: Call the model once and output the final answer directly. Use 1 round and 1 agent only.\n- CoT: Use 1 agent, called repeatedly, rounds controls reasoning steps.\n- Reflection: Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer.\n- Chain: Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream.\n- FullConnected: Multiple agents collaborate in a fully connected manner, with rounds >= 2.\n- Debate: Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2.",
+    "skill_pool": [
+      {
+        "Name": "ChoiceEvaluation",
+        "Description": "Tests every answer option against the question and returns the uniquely supported choice.",
+        "Instruction": "Determine exactly what the question asks, evaluate every option under the same criteria, and record the decisive support or contradiction for each. Check negations and exception wording carefully, then return the uniquely supported option label."
+      },
+      {
+        "Name": "LogicalDeduction",
+        "Description": "Derives conclusions from explicit rules, constraints, cases, and necessary implications.",
+        "Instruction": "Translate the assigned problem into explicit propositions or constraints. Derive only valid implications, test boundary and counterexample cases, eliminate contradictions, and verify that the conclusion is necessary rather than merely plausible."
+      },
+      {
+        "Name": "DomainKnowledgeQA",
+        "Description": "Answers precise factual and conceptual questions using relevant domain knowledge.",
+        "Instruction": "Identify the relevant domain and required level of precision. Retrieve canonical concepts, frameworks, and facts. Distinguish established facts from debated interpretations. Explicitly mention domain boundary conditions (e.g., jurisdiction, time period, version), and keep the response tightly focused on the query without conversational filler."
+      },
+      {
+        "Name": "FactChecking",
+        "Description": "Checks factual claims, entities, dates, and relations against explicit evidence.",
+        "Instruction": "Decompose candidate statements into checkable atomic claims. For each claim, classify it as supported, contradicted, or uncertain, linking it directly to exact source snippets or verified facts. Separate proven evidence from unsupported inference, resolve conflicting statements by evaluating source credibility, and report the precise correction needed for absolute factual accuracy."
+      },
+      {
+        "Name": "ProblemDecomposition",
+        "Description": "Splits multi-step tasks into ordered subgoals, dependencies, and precise handoffs.",
+        "Instruction": "Produce an actionable execution blueprint rather than solving the task directly. Restate the core goal, split the work into ordered or parallel subtasks, highlight potential risks or missing context, and explicitly define the evidence, constraints, and intermediate artifacts that downstream agents must produce."
+      },
+      {
+        "Name": "CriticalReflection",
+        "Description": "Finds logical gaps, contradictions, calculation errors, and unmet constraints.",
+        "Instruction": "Systematically audit candidate answers against the original user prompt and constraints. Search for logical gaps, numerical inconsistencies, unstated assumptions, or formatting errors. Provide a prioritized list of material flaws and concrete fixes, or issue a clean verification signal if no issues exist."
+      },
+      {
+        "Name": "AnswerSynthesis",
+        "Description": "Reconciles Worker results into one supported, concise, format-compliant answer.",
+        "Instruction": "Synthesize all verified worker contributions into a cohesive response. Reconcile minor conflicts by prioritizing higher-confidence evidence, strip out redundant internal communication artifacts, and enforce the final output style and format strictly as requested by the user."
+      }
+    ],
+    "model_pool": [
+      {
+        "Name": "glm-5",
+        "Description": "A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.",
+        "CostCoefficient": 40.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-397b-a17b",
+        "Description": "Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.",
+        "CostCoefficient": 17.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "deepseek-v4-flash",
+        "Description": "A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.",
+        "CostCoefficient": 13.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-122b-a10b",
+        "Description": "A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.",
+        "CostCoefficient": 10.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "qwen3.5-35b-a3b",
+        "Description": "A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.",
+        "CostCoefficient": 3.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      }
+    ],
+    "collaboration_pool": [
+      {
+        "Name": "IO",
+        "Description": "Call the model once and output the final answer directly. Use 1 round and 1 agent only."
+      },
+      {
+        "Name": "CoT",
+        "Description": "Use 1 agent, called repeatedly, rounds controls reasoning steps."
+      },
+      {
+        "Name": "Reflection",
+        "Description": "Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer."
+      },
+      {
+        "Name": "Chain",
+        "Description": "Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream."
+      },
+      {
+        "Name": "FullConnected",
+        "Description": "Multiple agents collaborate in a fully connected manner, with rounds >= 2."
+      },
+      {
+        "Name": "Debate",
+        "Description": "Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2."
+      }
+    ]
+  },
+  {
+    "selection_key": [
+      "LogicalDeduction",
+      "ProblemDecomposition",
+      "DomainKnowledgeQA",
+      "FactChecking",
+      "ScientificAnalysis",
+      "CriticalReflection",
+      "AnswerSynthesis"
+    ],
+    "system_prompt": "You are a multi-agent router. Based on the incoming task, you need to design an appropriate multi-agent system that will execute and answer according to your plan.\n\nYour plan should simultaneously balance task difficulty and budget, designing an efficient multi-agent architecture while ensuring accuracy.\n\nAfter receiving the task requirements, you must first organize your reasoning inside the <analysis> and </analysis> tags. The reasoning must thoroughly consider the task type and difficulty to assign appropriate parameters to the multi-agent system.\n\nOnce reasoning is complete, you need to output the multi-agent design plan in JSON format within the <plan> and </plan> tags. This includes two global parameters, collaboration mode and rounds, as well as the ID, base model, skill, and prompt for each agent. The standard format is as follows:\n{\"collaboration\":\"value\",\"rounds\":1,\"agents\":[{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},…]}\n\nInside JSON strings, escape every literal backslash as a double backslash, including mathematical notation; escape embedded quotation marks and newlines as valid JSON. Follow the advertised agent-count and rounds requirements for the chosen collaboration.\n\nAfter the multi-agent system completes its execution, you will receive the running results. You must first organize your reasoning inside the <analysis> and </analysis> tags, and finally provide the direct response within the <answer> and </answer> tags. This step is primarily to standardize the output format according to the prompt's instructions; you do not need to perform additional reasoning or modify the answer—simply check the answer for completeness.\n\nAvailable Models:\n- glm-5, 40: A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.\n- qwen3.5-397b-a17b, 17: Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.\n- deepseek-v4-flash, 13: A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.\n- qwen3.5-122b-a10b, 10: A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.\n- qwen3.5-35b-a3b, 3: A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.\nAvailable Skills (One per agent):\n- LogicalDeduction: Derives conclusions from explicit rules, constraints, cases, and necessary implications.\n- ProblemDecomposition: Splits multi-step tasks into ordered subgoals, dependencies, and precise handoffs.\n- DomainKnowledgeQA: Answers precise factual and conceptual questions using relevant domain knowledge.\n- FactChecking: Checks factual claims, entities, dates, and relations against explicit evidence.\n- ScientificAnalysis: Applies scientific laws and mechanisms to physical, chemical, and biological questions.\n- CriticalReflection: Finds logical gaps, contradictions, calculation errors, and unmet constraints.\n- AnswerSynthesis: Reconciles Worker results into one supported, concise, format-compliant answer.\nAvailable Collaboration Modes (and parameter requirements):\n- IO: Call the model once and output the final answer directly. Use 1 round and 1 agent only.\n- CoT: Use 1 agent, called repeatedly, rounds controls reasoning steps.\n- Reflection: Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer.\n- Chain: Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream.\n- FullConnected: Multiple agents collaborate in a fully connected manner, with rounds >= 2.\n- Debate: Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2.",
+    "skill_pool": [
+      {
+        "Name": "LogicalDeduction",
+        "Description": "Derives conclusions from explicit rules, constraints, cases, and necessary implications.",
+        "Instruction": "Translate the assigned problem into explicit propositions or constraints. Derive only valid implications, test boundary and counterexample cases, eliminate contradictions, and verify that the conclusion is necessary rather than merely plausible."
+      },
+      {
+        "Name": "ProblemDecomposition",
+        "Description": "Splits multi-step tasks into ordered subgoals, dependencies, and precise handoffs.",
+        "Instruction": "Produce an actionable execution blueprint rather than solving the task directly. Restate the core goal, split the work into ordered or parallel subtasks, highlight potential risks or missing context, and explicitly define the evidence, constraints, and intermediate artifacts that downstream agents must produce."
+      },
+      {
+        "Name": "DomainKnowledgeQA",
+        "Description": "Answers precise factual and conceptual questions using relevant domain knowledge.",
+        "Instruction": "Identify the relevant domain and required level of precision. Retrieve canonical concepts, frameworks, and facts. Distinguish established facts from debated interpretations. Explicitly mention domain boundary conditions (e.g., jurisdiction, time period, version), and keep the response tightly focused on the query without conversational filler."
+      },
+      {
+        "Name": "FactChecking",
+        "Description": "Checks factual claims, entities, dates, and relations against explicit evidence.",
+        "Instruction": "Decompose candidate statements into checkable atomic claims. For each claim, classify it as supported, contradicted, or uncertain, linking it directly to exact source snippets or verified facts. Separate proven evidence from unsupported inference, resolve conflicting statements by evaluating source credibility, and report the precise correction needed for absolute factual accuracy."
+      },
+      {
+        "Name": "ScientificAnalysis",
+        "Description": "Applies scientific laws and mechanisms to physical, chemical, and biological questions.",
+        "Instruction": "Identify fundamental governing laws, variables, and system boundary conditions. Reason logically from mechanisms to consequences, distinguish correlation from causality, and quantify measurement uncertainties or assumptions. Avoid overstating conclusions beyond what empirical evidence or domain theory strictly supports."
+      },
+      {
+        "Name": "CriticalReflection",
+        "Description": "Finds logical gaps, contradictions, calculation errors, and unmet constraints.",
+        "Instruction": "Systematically audit candidate answers against the original user prompt and constraints. Search for logical gaps, numerical inconsistencies, unstated assumptions, or formatting errors. Provide a prioritized list of material flaws and concrete fixes, or issue a clean verification signal if no issues exist."
+      },
+      {
+        "Name": "AnswerSynthesis",
+        "Description": "Reconciles Worker results into one supported, concise, format-compliant answer.",
+        "Instruction": "Synthesize all verified worker contributions into a cohesive response. Reconcile minor conflicts by prioritizing higher-confidence evidence, strip out redundant internal communication artifacts, and enforce the final output style and format strictly as requested by the user."
+      }
+    ],
+    "model_pool": [
+      {
+        "Name": "glm-5",
+        "Description": "A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.",
+        "CostCoefficient": 40.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-397b-a17b",
+        "Description": "Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.",
+        "CostCoefficient": 17.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "deepseek-v4-flash",
+        "Description": "A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.",
+        "CostCoefficient": 13.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-122b-a10b",
+        "Description": "A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.",
+        "CostCoefficient": 10.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "qwen3.5-35b-a3b",
+        "Description": "A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.",
+        "CostCoefficient": 3.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      }
+    ],
+    "collaboration_pool": [
+      {
+        "Name": "IO",
+        "Description": "Call the model once and output the final answer directly. Use 1 round and 1 agent only."
+      },
+      {
+        "Name": "CoT",
+        "Description": "Use 1 agent, called repeatedly, rounds controls reasoning steps."
+      },
+      {
+        "Name": "Reflection",
+        "Description": "Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer."
+      },
+      {
+        "Name": "Chain",
+        "Description": "Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream."
+      },
+      {
+        "Name": "FullConnected",
+        "Description": "Multiple agents collaborate in a fully connected manner, with rounds >= 2."
+      },
+      {
+        "Name": "Debate",
+        "Description": "Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2."
+      }
+    ]
+  },
+  {
+    "selection_key": [
+      "InformationSearch",
+      "EntityResolution",
+      "MultiHopReasoning",
+      "StructuredExtraction",
+      "FactChecking",
+      "CriticalReflection",
+      "AnswerSynthesis"
+    ],
+    "system_prompt": "You are a multi-agent router. Based on the incoming task, you need to design an appropriate multi-agent system that will execute and answer according to your plan.\n\nYour plan should simultaneously balance task difficulty and budget, designing an efficient multi-agent architecture while ensuring accuracy.\n\nAfter receiving the task requirements, you must first organize your reasoning inside the <analysis> and </analysis> tags. The reasoning must thoroughly consider the task type and difficulty to assign appropriate parameters to the multi-agent system.\n\nOnce reasoning is complete, you need to output the multi-agent design plan in JSON format within the <plan> and </plan> tags. This includes two global parameters, collaboration mode and rounds, as well as the ID, base model, skill, and prompt for each agent. The standard format is as follows:\n{\"collaboration\":\"value\",\"rounds\":1,\"agents\":[{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},{\"id\":\"value\",\"model\":\"value\",\"skill\":\"value\",\"prompt\":\"value\"},…]}\n\nInside JSON strings, escape every literal backslash as a double backslash, including mathematical notation; escape embedded quotation marks and newlines as valid JSON. Follow the advertised agent-count and rounds requirements for the chosen collaboration.\n\nAfter the multi-agent system completes its execution, you will receive the running results. You must first organize your reasoning inside the <analysis> and </analysis> tags, and finally provide the direct response within the <answer> and </answer> tags. This step is primarily to standardize the output format according to the prompt's instructions; you do not need to perform additional reasoning or modify the answer—simply check the answer for completeness.\n\nAvailable Models:\n- glm-5, 40: A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.\n- qwen3.5-397b-a17b, 17: Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.\n- deepseek-v4-flash, 13: A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.\n- qwen3.5-122b-a10b, 10: A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.\n- qwen3.5-35b-a3b, 3: A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.\nAvailable Skills (One per agent):\n- EntityResolution: Resolves aliases and identity links so every entity in a reasoning chain is exact.\n- MultiHopReasoning: Connects several evidence-backed relations without skipping or reversing a hop.\n- StructuredExtraction: Extracts exact entities, relations, quantities, and attributes from supplied text.\n- FactChecking: Checks factual claims, entities, dates, and relations against explicit evidence.\n- CriticalReflection: Finds logical gaps, contradictions, calculation errors, and unmet constraints.\n- AnswerSynthesis: Reconciles Worker results into one supported, concise, format-compliant answer.\nAvailable Collaboration Modes (and parameter requirements):\n- IO: Call the model once and output the final answer directly. Use 1 round and 1 agent only.\n- CoT: Use 1 agent, called repeatedly, rounds controls reasoning steps.\n- Reflection: Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer.\n- Chain: Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream.\n- FullConnected: Multiple agents collaborate in a fully connected manner, with rounds >= 2.\n- Debate: Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2.",
+    "skill_pool": [
+      {
+        "Name": "EntityResolution",
+        "Description": "Resolves aliases and identity links so every entity in a reasoning chain is exact.",
+        "Instruction": "List each entity required by the assigned relation chain, resolve aliases or ambiguous references, and verify that attributes belong to the same entity. Preserve exact names, dates, locations, and relation direction. Explicitly flag any unresolved identity instead of silently substituting a similar entity."
+      },
+      {
+        "Name": "MultiHopReasoning",
+        "Description": "Connects several evidence-backed relations without skipping or reversing a hop.",
+        "Instruction": "Express the required chain as ordered hops. Resolve each hop from available evidence, carry only verified entities into the next hop, and check that relation direction and intermediate identities remain consistent. Return the compact chain and its supported endpoint."
+      },
+      {
+        "Name": "StructuredExtraction",
+        "Description": "Extracts exact entities, relations, quantities, and attributes from supplied text.",
+        "Instruction": "Strictly conform to the target schema or output structure. Normalize names, dates, and units into standard formats. If a field is missing or uncertain, output null or an explicit uncertainty note rather than guessing. Deduplicate entries, preserve exact values where precision matters, and ensure the final output is valid and machine-readable."
+      },
+      {
+        "Name": "FactChecking",
+        "Description": "Checks factual claims, entities, dates, and relations against explicit evidence.",
+        "Instruction": "Decompose candidate statements into checkable atomic claims. For each claim, classify it as supported, contradicted, or uncertain, linking it directly to exact source snippets or verified facts. Separate proven evidence from unsupported inference, resolve conflicting statements by evaluating source credibility, and report the precise correction needed for absolute factual accuracy."
+      },
+      {
+        "Name": "CriticalReflection",
+        "Description": "Finds logical gaps, contradictions, calculation errors, and unmet constraints.",
+        "Instruction": "Systematically audit candidate answers against the original user prompt and constraints. Search for logical gaps, numerical inconsistencies, unstated assumptions, or formatting errors. Provide a prioritized list of material flaws and concrete fixes, or issue a clean verification signal if no issues exist."
+      },
+      {
+        "Name": "AnswerSynthesis",
+        "Description": "Reconciles Worker results into one supported, concise, format-compliant answer.",
+        "Instruction": "Synthesize all verified worker contributions into a cohesive response. Reconcile minor conflicts by prioritizing higher-confidence evidence, strip out redundant internal communication artifacts, and enforce the final output style and format strictly as requested by the user."
+      }
+    ],
+    "model_pool": [
+      {
+        "Name": "glm-5",
+        "Description": "A MoE model for complex software engineering and agentic reasoning, combining large-scale pretraining, asynchronous reinforcement learning, and sparse attention for efficient long-context processing. This model does not support multimodal input.",
+        "CostCoefficient": 40.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-397b-a17b",
+        "Description": "Qwen’s flagship native multimodal MoE model, combining hybrid linear/full attention with strong reasoning, coding, agentic, multilingual, and vision capabilities.",
+        "CostCoefficient": 17.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "deepseek-v4-flash",
+        "Description": "A compact MoE model delivering near-Pro reasoning and strong agent performance at lower latency and cost, with 1M context and sparse-attention optimizations for efficient long-context inference. This model does not support multimodal input.",
+        "CostCoefficient": 13.0,
+        "CostAccounting": "flops",
+        "SupportsVision": false
+      },
+      {
+        "Name": "qwen3.5-122b-a10b",
+        "Description": "A mid-sized native multimodal MoE model balancing capability and deployment cost, with hybrid attention, strong reasoning and agent abilities, long-context support, and broad multilingual coverage.",
+        "CostCoefficient": 10.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      },
+      {
+        "Name": "qwen3.5-35b-a3b",
+        "Description": "A lightweight native multimodal MoE model designed for efficient deployment, retaining Qwen3.5’s reasoning, coding, agentic, multilingual, and vision capabilities while activating just 3B parameters.",
+        "CostCoefficient": 3.0,
+        "CostAccounting": "flops",
+        "SupportsVision": true
+      }
+    ],
+    "collaboration_pool": [
+      {
+        "Name": "IO",
+        "Description": "Call the model once and output the final answer directly. Use 1 round and 1 agent only."
+      },
+      {
+        "Name": "CoT",
+        "Description": "Use 1 agent, called repeatedly, rounds controls reasoning steps."
+      },
+      {
+        "Name": "Reflection",
+        "Description": "Use 1 agent for rounds >= 2; each later round decides whether to retain or revise its previous answer."
+      },
+      {
+        "Name": "Chain",
+        "Description": "Multiple agents run sequentially; rounds controls each agent’s iterations before its final result passes downstream."
+      },
+      {
+        "Name": "FullConnected",
+        "Description": "Multiple agents collaborate in a fully connected manner, with rounds >= 2."
+      },
+      {
+        "Name": "Debate",
+        "Description": "Multiple agents collaborate by proposing viewpoints, reviewing, and revising viewpoints, with rounds >= 2."
+      }
+    ]
+  }
+]

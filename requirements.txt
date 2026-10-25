@@ -1,0 +1,14 @@
+torch==2.7.1
+transformers==4.57.6
+accelerate==1.14.0
+safetensors==0.8.0
+huggingface-hub==0.36.2
+numpy==1.26.4
+openai==1.109.1
+httpx==0.28.1
+python-dotenv==1.2.3
+class-registry==2.1.2
+loguru==0.7.3
+tenacity==8.5.0
+tiktoken==0.14.0
+setuptools==80.10.2
