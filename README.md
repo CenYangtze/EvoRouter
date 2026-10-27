@@ -1,10 +1,36 @@
-# EvoRouter
+<div align="center">
 
-**Cost-Efficient Multi-Agent Routing via Insight-Guided On-Policy Distillation**
+<h1>EvoRouter 🔀</h1>
 
-EvoRouter brings cost-efficient multi-agent routing to a shared evaluation workflow. Run EvoRouter, five individual language models, and nine routing baselines on BudgetBench, BBH logical deduction, and LiveCodeBench. The evaluator records task predictions, accuracy, and Worker FLOPs, with consistent summaries across methods, datasets, and domains.
+<h3>Cost-Efficient Multi-Agent Routing via Insight-Guided On-Policy Distillation</h3>
 
-[Model weights](https://huggingface.co/EvoRouter/EvoRouter-4B) · [BudgetBench](https://huggingface.co/datasets/EvoRouter/BudgetBench) · [Resource guide](docs/resources.md)
+</div>
+<p>
+  
+**EvoRouter** is a self-evolving multi-agent routing framework that learns to orchestrate LLM-powered agents for high-quality, cost-efficient problem solving. Given a task, EvoRouter dynamically configures **LLM backbones, collaboration modes, agent counts, interaction rounds, specialized skills and subtasks**, enabling adaptive resource allocation across diverse tasks and computational budgets.
+
+At its core, EvoRouter introduces an **insight-guided self-improvement loop**. An insight expert distills reusable routing knowledge from execution trajectories, capturing when to scale resources, how much to scale, and which configurations work best together. Through **on-policy distillation** and **cost-aware reinforcement learning**, EvoRouter progressively internalizes these insights into its routing policy, continuously improving orchestration decisions while controlling inference costs.
+
+🚀 **EvoRouter-4B achieves 68.69% average in-domain accuracy, outperforming the strongest routing baseline by 7.23 percentage points while reducing multi-agent inference compute by 50.95%.**
+</p>
+
+<div align="center">
+  
+<p>
+  <a href="https://arxiv.org/abs/2610.35690">
+    <img src="https://img.shields.io/badge/Paper-arXiv-b31b1b?style=flat-square&logo=arxiv&logoColor=white">
+  </a>
+  <a href="https://huggingface.co/EvoRouter/EvoRouter-4B">
+    <img src="https://img.shields.io/badge/Model-HuggingFace-FFD21E?style=flat-square&logo=huggingface&logoColor=black">
+  </a>
+  <a href="https://huggingface.co/datasets/EvoRouter/BudgetBench">
+    <img src="https://img.shields.io/badge/Dataset-HuggingFace-FFD21E?style=flat-square&logo=huggingface&logoColor=black">
+  </a>
+</p>
+
+</div>
+
+---
 
 ## Installation
 
